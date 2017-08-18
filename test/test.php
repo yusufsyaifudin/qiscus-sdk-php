@@ -5,7 +5,7 @@ require "src/Qiscus/QiscusSdk.php";
 require "src/Qiscus/QiscusIdentityToken.php";
 
 $qiscus_identity_token = new \Qiscus\QiscusIdentityToken("dragongo", "dragongo-123");
-$qiscus_identity_token->localMode(true);
+// $qiscus_identity_token->localMode(true);
 $nonce = $qiscus_identity_token->getNonce();
 // var_dump($nonce);
 
