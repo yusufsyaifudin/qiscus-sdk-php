@@ -1,0 +1,1 @@
+to test in staging (dragongo) run `php test/test.php`
