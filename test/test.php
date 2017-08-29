@@ -1,7 +1,7 @@
 <?php
 
 require "vendor/autoload.php";
-require "src/Qiscus/QiscusSdk.php";
+// require "src/Qiscus/QiscusSdk.php";
 require "src/Qiscus/QiscusIdentityToken.php";
 
 $qiscus_identity_token = new \Qiscus\QiscusIdentityToken("dragongo", "dragongo-123");
