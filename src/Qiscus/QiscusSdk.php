@@ -134,6 +134,10 @@ class QiscusSdk
       $response_json = json_decode((string) $response->getBody());
       // echo $response_json->results->room_id;
       return $response_json;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+      return $response_json;
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -169,6 +173,12 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
+      return $response_json;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
       return $response_json;
     } catch (\Exception $e) {
       $response = $e->getResponse();
@@ -216,6 +226,12 @@ class QiscusSdk
 
       $response_json = json_decode((string) $response->getBody());
       return $response_json;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+      return $response_json;
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -258,6 +274,12 @@ class QiscusSdk
 
       $response_json = json_decode((string) $response->getBody());
       return $response_json;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+      return $response_json;
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -299,6 +321,12 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
+      return $response_json;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
       return $response_json;
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
@@ -362,6 +390,12 @@ class QiscusSdk
 
       $response_json = json_decode((string) $response->getBody());
       return $response_json;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+      return $response_json;
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -395,6 +429,12 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
+      return $response_json;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
       return $response_json;
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
