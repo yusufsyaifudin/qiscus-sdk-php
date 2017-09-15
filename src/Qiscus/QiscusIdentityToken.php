@@ -17,21 +17,21 @@ class QiscusIdentityToken
 
   function __construct($qiscus_sdk_app_id, $qiscus_sdk_secret)
   {
-    if (!ini_get("date.timezone")) {
-      date_default_timezone_set("GMT");
+    if (!ini_get('date.timezone')) {
+      date_default_timezone_set('GMT');
     }
 
     $this->qiscus_sdk_app_id = $qiscus_sdk_app_id;
     $this->qiscus_sdk_secret = $qiscus_sdk_secret;
 
-    $base_url = "https://" . $qiscus_sdk_app_id . ".qiscus.com/";
-    $this->client = new \GuzzleHttp\Client(["base_uri" => $base_url]);
+    $base_url = 'https://' . $qiscus_sdk_app_id . '.qiscus.com/';
+    $this->client = new \GuzzleHttp\Client(['base_uri' => $base_url]);
   }
 
   public function localMode($local = false, $base_url = "http://localhost:9000")
   {
     if ($local === true) {
-      $this->client = new \GuzzleHttp\Client(["base_uri" => $base_url]);
+      $this->client = new \GuzzleHttp\Client(['base_uri' => $base_url]);
     }
   }
 
@@ -62,7 +62,7 @@ class QiscusIdentityToken
   }
 
 
-  public function generateIdentityToken($nonce, $user_id, $user_name = "", $avatar_url = "")
+  public function generateIdentityToken($nonce, $user_id, $user_name = '', $avatar_url = '')
   {
     // Using HMAC (HS256) signing method
     $signer = new Sha256();
@@ -73,14 +73,14 @@ class QiscusIdentityToken
       // Set header
       // Header "alg" has been set to HS256 by library
       // Header "typ" has been set to "JWT" by library
-      ->setHeader("ver", "v2")
+      ->setHeader('ver', 'v2')
 
       // Set the payload
       // Configures the issuer (iss claim). It is a qiscus app id, can be obtain from dashboard
       ->setIssuer($this->qiscus_sdk_app_id)
 
       // Configures payload, "prn" is a client provider's internal ID for the authenticating user. Don't copy to header
-      ->set("prn", $user_id, false)
+      ->set('prn', $user_id, false)
 
       // Configures the time that the token was issue (iat claim)
       ->setIssuedAt($now)
@@ -92,13 +92,13 @@ class QiscusIdentityToken
       ->setExpiration($now + 120)
 
       // nce claim, is a nonce from client
-      ->set("nce", $nonce, false)
+      ->set('nce', $nonce, false)
 
       // String - Optional - Name of user.
-      ->set("name", $user_name, false)
+      ->set('name', $user_name, false)
 
       // String - Optional - Avatar url of user.
-      ->set("avatar_url", $avatar_url, false)
+      ->set('avatar_url', $avatar_url, false)
 
       // Signing
       // creates a signature using qiscus sdk secret as key

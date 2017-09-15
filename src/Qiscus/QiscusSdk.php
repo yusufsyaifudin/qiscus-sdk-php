@@ -19,8 +19,74 @@ class QiscusSdk
     $this->qiscus_sdk_app_id = $qiscus_sdk_app_id;
     $this->qiscus_sdk_secret = $qiscus_sdk_secret;
 
-    $base_url = "https://" . $qiscus_sdk_app_id . ".qiscus.com/";
-    $this->client = new \GuzzleHttp\Client(["base_uri" => $base_url]);
+    $base_url = 'https://' . $qiscus_sdk_app_id . '.qiscus.com/';
+    $this->client = new \GuzzleHttp\Client(['base_uri' => $base_url]);
+  }
+
+  /**
+   * Create new user, or if email is exist it will login.
+   * Previous password will be replaced to new password if email with that user is exist.
+   *
+   * @param string $email required
+   * @param string $password required
+   * @param string $display_name
+   * @param string $avatar_url
+   * @param string $device_platform
+   * @param string $device_token
+   *
+   * @return json object
+   */
+  public function loginOrRegister(string $email, string $password, string $display_name = '', string $avatar_url = '',
+    string $device_platform = '', string $device_token = '')
+  {
+    try {
+      $multipart = [
+        [
+          'name' => 'email', 
+          'contents' => $email
+        ],
+        [
+          'name' => 'password',
+          'contents' => $password
+        ],
+        [
+          'name' => 'username',
+          'contents' => $display_name
+        ],
+        [
+          'name' => 'avatar_url',
+          'contents' => $avatar_url
+        ],
+        [
+          'name' => 'device_platform',
+          'contents' => $device_platform
+        ],
+        [
+          'name' => 'device_token',
+          'contents' => $device_token
+        ]
+      ];
+
+      $response = $this->client->request('POST', '/api/v2/rest/login_or_register',
+        [
+          'multipart' => $multipart,
+          'headers' => [
+              'Accept' => 'application/json',
+              'QISCUS_SDK_SECRET' => $this->qiscus_sdk_secret
+          ]
+        ]);
+
+      $response_json = json_decode((string) $response->getBody());
+      return $response_json;
+    }  catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+      return $response_json;
+    } catch (\Exception $e) {
+      throw new \Exception($e->getMessage());
+    }
   }
 
   /**
@@ -33,7 +99,7 @@ class QiscusSdk
    *
    * @return json object
    */
-  public function create_room(string $room_name, array $participants, string $creator)
+  public function createRoom(string $room_name, array $participants, string $creator)
   {
     try {
       
@@ -78,20 +144,21 @@ class QiscusSdk
    * otherwise it will create a new chat room using given emails
    *
    * @param array $emails
-   * @param string $avatar_url
    *
    * @return json object
    */
-  public function get_or_create_room_with_target(array $emails, string $avatar_url = "")
+  public function getOrCreateRoomWithTarget(array $emails)
   {
     try {
-      $query_params = "";
-
-      foreach ($emails as $email) {
-        $query_params .= "emails[]=" . $email . "&";
+      if (count($emails) != 2) {
+        throw new \Exception('Email participants must 2 email');
       }
 
-      $query_params .= "avatar_url=" . $avatar_url;
+      $query_params = '';
+
+      foreach ($emails as $email) {
+        $query_params .= 'emails[]=' . $email . '&';
+      }
 
       $response = $this->client->request('GET', '/api/v2/rest/get_or_create_room_with_target?' . $query_params,
         [
@@ -120,20 +187,27 @@ class QiscusSdk
    *
    * @return json object
    */
-  public function get_rooms_info(string $user_email, array $room_ids)
+  public function getRoomsInfo(string $user_email, array $room_ids)
   {
     try {
 
       $room_ids = array_unique($room_ids);
-      $query_params = "";
+      $multipart = [];
+      $multipart[] = [
+        'name' => 'user_email', 
+        'contents' => $user_email
+      ];
+
       foreach ($room_ids as $room_id) {
-        $query_params .= "room_id[]=" . $room_id . "&";
+        $multipart[] = [
+          'name' => 'room_id[]', 
+          'contents' => $room_id
+        ];
       }
 
-      $query_params .= "user_email=" . $user_email;
-
-      $response = $this->client->request('GET', '/api/v2/rest/get_rooms_info?' . $query_params,
+      $response = $this->client->request('POST', '/api/v2/rest/get_rooms_info',
         [
+          'multipart' => $multipart,
           'headers' => [
               'Accept' => 'application/json',
               'QISCUS_SDK_SECRET' => $this->qiscus_sdk_secret
@@ -155,7 +229,7 @@ class QiscusSdk
    * 
    * @return json object
    */
-  public function add_room_participants(int $room_id, array $emails)
+  public function addRoomParticipants(int $room_id, array $emails)
   {
     try {
       
@@ -197,7 +271,7 @@ class QiscusSdk
    * 
    * @return json object
    */
-  public function remove_room_participants(int $room_id, array $emails)
+  public function removeRoomParticipants(int $room_id, array $emails)
   {
     try {
       
@@ -232,33 +306,49 @@ class QiscusSdk
   }
 
   /**
-   * Post a message to target email.
+   * Post a message to a room.
    *
-   * @param string $sender_email
-   * @param string $target_email
-   * @param string $message
+   * @param string $sender_email required
+   * @param string $room_id required
+   * @param string $message required
+   * @param string $type optional, default text
+   * @param string $payload optional
    * 
    * @return json object
    */
-  public function post_comment(string $sender_email, string $target_email, string $message)
+  public function postComment(string $sender_email, string $room_id, string $message, string $type = 'text', array $payload = [],
+    string $unique_temp_id = '', boolean $disable_link_preview = null)
   {
     try {
-      
-      // building parameters
-      $multipart = [];
-      $multipart[] = [
-        'name' => 'sender_email', 
-        'contents' => $sender_email
-      ];
-
-      $multipart[] = [
-        'name' => 'target_email', 
-        'contents' => $target_email
-      ];
-
-      $multipart[] = [
-        'name' => 'message', 
-        'contents' => $message
+      $multipart = [
+        [
+          'name' => 'sender_email', 
+          'contents' => $sender_email
+        ],
+        [
+          'name' => 'room_id', 
+          'contents' => $room_id
+        ],
+        [
+          'name' => 'message', 
+          'contents' => $message
+        ],
+        [
+          'name' => 'type', 
+          'contents' => $type
+        ],
+        [
+          'name' => 'payload', 
+          'contents' => json_encode($payload)
+        ],
+        [
+          'name' => 'unique_temp_id', 
+          'contents' => $unique_temp_id
+        ],
+        [
+          'name' => 'disable_link_preview', 
+          'contents' => ($disable_link_preview == null || $disable_link_preview = false) ? 'false' : 'true'
+        ]
       ];
 
       $response = $this->client->request('POST', '/api/v2/rest/post_comment',
@@ -286,7 +376,7 @@ class QiscusSdk
    *
    * @return json object
    */
-  public function load_comments(int $room_id, int $page = 1, int $limit = 20)
+  public function loadComments(int $room_id, int $page = 1, int $limit = 20)
   {
     try {
 
@@ -310,55 +400,4 @@ class QiscusSdk
       throw new \Exception($e->getMessage());
     }
   }
-
-  // For testing purpose only, don't even run it in production mode
-  public static function test()
-  {
-    throw new \Exception("For testing purpose only", 1);
-    
-    $qiscus_sdk = new QiscusSdk("dragongo", "dragongo-123");
-
-    $room_name = "Testing...";
-    $emails = ["userid_78_6285848458681@qisme.com", "6282110472017@qisme.com"];
-    $creator = "6282110472017@qisme.com";
-    $another_users = ["userid_90_6282110472018@qisme.com"];
-
-    // create a new room
-    $create_room = $qiscus_sdk->create_room($room_name, $emails, $creator);
-    echo "================ CREATE ROOM =======================";
-    var_dump($create_room);
-
-    // load comments
-    $load_comments = $qiscus_sdk->load_comments($create_room->results->room_id);
-    echo "================ LOAD COMMENTS =====================";
-    var_dump($load_comments);
-
-    // get room info
-    $get_rooms_info = $qiscus_sdk->get_rooms_info($emails[0], [$create_room->results->room_id]);
-    echo "================ GET ROOM INFO =====================";
-    var_dump($get_rooms_info);
-
-    // add participant
-    $add_room_participants = $qiscus_sdk->add_room_participants($create_room->results->room_id, $another_users);
-    echo "================ ADD PARTICIPANTS ==================";
-    var_dump($add_room_participants);
-
-    // remove participant
-    $remove_room_participants = $qiscus_sdk->remove_room_participants($create_room->results->room_id, $another_users);
-    echo "================ REMOVE PARTICIPANTS ==================";
-    var_dump($remove_room_participants);
-
-    // post comment
-    // this is for single chat only
-    $post_comment = $qiscus_sdk->post_comment($emails[0], $emails[1], "Halo");
-    echo "================ POST COMMENT ======================";
-    var_dump($post_comment);
-
-    // get or create room with target
-    // this is for single chat only
-    $get_or_create_room_with_target = $qiscus_sdk->get_or_create_room_with_target($emails);
-    echo "================ GET OR CREATE ROOM WITH TARGET ============";
-    var_dump($get_or_create_room_with_target);
-  }
-
 }
