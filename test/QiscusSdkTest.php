@@ -3,18 +3,24 @@
 require 'vendor/autoload.php';
 require 'src/Qiscus/QiscusSdk.php';
 
-$qiscus_sdk = new \Qiscus\QiscusSdk('dragongo', 'dragongo-123');
+$qiscus_sdk = new \Qiscus\QiscusSdk('kiwari-stag', 'kiwari-stag-123');
+$qiscus_sdk->localMode(true);
 
 $room_name = 'Testing...';
 $password = 'password';
 $emails = ['email1@mailinator.com', 'email2@mailinator.com', 'email3@mailinator.com', 'email4@mailinator.com'];
 $creator = $emails[0];
-$room_participants = [$emails[2], $emails[3]];
+$room_participants = [$creator, $emails[3]];
 
 // login or register
 foreach($emails as $email) {
-  $user = $qiscus_sdk->loginOrRegister($email, $password, $email); 
-  var_dump($user);
+  try {
+    $user = $qiscus_sdk->loginOrRegister($email, $password, $email); 
+    // echo json_encode($user);
+  } catch (\Exception $e) {
+    // var_dump($e->getMessage());
+  }
+  break;
 }
 
 // // create a new room
@@ -48,8 +54,13 @@ foreach($emails as $email) {
 // echo "================ POST COMMENT ======================";
 // var_dump($post_comment);
 
-// // get or create room with target
-// // this is for single chat only
-// $get_or_create_room_with_target = $qiscus_sdk->getOrCreateRoomWithTarget($room_participants);
-// echo "================ GET OR CREATE ROOM WITH TARGET ============";
-// var_dump($get_or_create_room_with_target);
+// get or create room with target
+// this is for single chat only
+$get_or_create_room_with_target = $qiscus_sdk->getOrCreateRoomWithTarget($room_participants);
+echo "================ GET OR CREATE ROOM WITH TARGET ============";
+var_dump($get_or_create_room_with_target);
+// post comment
+// this is for single chat only
+// $post_comment = $qiscus_sdk->postComment($creator, $get_or_create_room_with_target->id, 'Halo', 'custom', ['type' => 'bar', 'content' => 'oke']);
+// echo "================ POST COMMENT ======================";
+// var_dump($post_comment);

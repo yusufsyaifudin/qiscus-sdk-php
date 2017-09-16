@@ -28,7 +28,7 @@ class QiscusIdentityToken
     $this->client = new \GuzzleHttp\Client(['base_uri' => $base_url]);
   }
 
-  public function localMode($local = false, $base_url = "http://localhost:9000")
+  public function localMode($local = false, $base_url = 'http://localhost:9000')
   {
     if ($local === true) {
       $this->client = new \GuzzleHttp\Client(['base_uri' => $base_url]);
