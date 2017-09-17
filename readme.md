@@ -1,1 +1,2 @@
-to test in staging (dragongo) run `php test/test.php`
+# Qiscus SDK REST API in PHP
+

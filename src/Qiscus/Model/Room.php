@@ -9,12 +9,13 @@ class Room implements \JsonSerializable {
   public $type; // String
   public $name; // String
   public $creator_email; // String
-  public $participants; // array(User)
   public $avatar_url; // String
   public $unread_count; // int
   public $last_comment_id; // String
   public $last_comment_message; // String
-  public $comments; // String
+  public $last_comment_timestamp; //DateTime
+  public $participants; // array(User)
+  public $comments; // Comment or array(Comment)
 
   public function jsonSerialize() {
     return get_object_vars($this);

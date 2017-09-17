@@ -109,8 +109,12 @@ class QiscusSdk
       // for 500-level errors or 400-level errors
       $response_body = $exception->getResponse()->getBody(true);
       $response_json = json_decode((string) $response_body);
-      
-      $errors = join(', ', $response_json->error->detailed_messages);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
@@ -166,7 +170,7 @@ class QiscusSdk
 
       $room = new \Qiscus\Model\Room();
       $room->id = (string) $room_info->room_id;
-      $room->channel_id = (string) $room_info->room_id;
+      $room->channel_id = new \Exception('This endpoint does not return channel id.', 1);
       $room->type = (string) $room_info->room_type;
       $room->name = (string) $room_info->room_name;
       $room->creator_email = (string) $room_info->creator;
@@ -174,6 +178,7 @@ class QiscusSdk
       $room->unread_count = new \Exception('This endpoint does not return unread count badge.', 1);
       $room->last_comment_id = '0'; // always zero in room creation
       $room->last_comment_message = ''; // always empty message in room creation
+      $room->last_comment_timestamp = new \Exception('This endpoint does not return last comment timestamp.', 1);
       $room->comments = []; // always empty comment in room creation
 
       $participants = [];
@@ -198,8 +203,12 @@ class QiscusSdk
       // for 500-level errors or 400-level errors
       $response_body = $exception->getResponse()->getBody(true);
       $response_json = json_decode((string) $response_body);
-      
-      $errors = join(', ', $response_json->error->detailed_messages);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
@@ -250,6 +259,7 @@ class QiscusSdk
       $room->unread_count = new \Exception('This endpoint does not return unread count badge.', 1);
       $room->last_comment_id = (string) $room_info->last_comment_id;
       $room->last_comment_message = (string) $room_info->last_comment_message;
+      $room->last_comment_timestamp = new \Exception('This endpoint does not return last comment timestamp.', 1);
       $room->participants = [];
       $room->comments = [];
 
@@ -258,6 +268,7 @@ class QiscusSdk
       foreach ($response_json->results->comments as $c) {
         $comment = new \Qiscus\Model\Comment();
         $comment->id = (string) $c->id;
+        $comment->type = (string) $c->type;
         $comment->message = (string) $c->message;
         $comment->payload = $c->payload; // already an object
 
@@ -313,8 +324,12 @@ class QiscusSdk
       // for 500-level errors or 400-level errors
       $response_body = $exception->getResponse()->getBody(true);
       $response_json = json_decode((string) $response_body);
-      
-      $errors = join(', ', $response_json->error->detailed_messages);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
@@ -359,7 +374,39 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-      return $response_json;
+      $rooms = [];
+
+      foreach ($response_json->results->rooms_info as $room_info) {
+        $room = new \Qiscus\Model\Room();
+        $room->id = (string) $room_info->room_id;
+        $room->channel_id = new \Exception('This endpoint does not return channel id.', 1);
+        $room->type = (string) $room_info->room_type;
+        $room->name = (string) $room_info->room_name;
+        $room->creator_email = new \Exception('This endpoint does not return creator email.', 1); // Empty response for this
+        $room->avatar_url = (string) $room_info->room_avatar_url;
+        $room->unread_count = $room_info->unread_count;
+        $room->last_comment_id = (string) $room_info->last_comment_id;
+        $room->last_comment_message = (string) $room_info->last_comment_message;
+        $room->last_comment_timestamp = new \Exception('This endpoint does not return last comment timestamp.', 1);
+        $room->participants = new \Exception('This endpoint does not return participants.', 1); // Empty response for this
+        $room->comments = new \Exception('This endpoint does not return comments.', 1); // Empty response for this
+
+        $rooms[] = $room;
+      }
+
+      return $rooms;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
+      throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -402,7 +449,53 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-      return $response_json;
+
+      $room_info = $response_json->results;
+
+      $room = new \Qiscus\Model\Room();
+      $room->id = (string) $room_info->room_id;
+      $room->channel_id = new \Exception('This endpoint does not return channel id.', 1);
+      $room->type = (string) $room_info->room_type;
+      $room->name = (string) $room_info->room_name;
+      $room->creator_email = (string) $room_info->creator;
+      $room->avatar_url = (string) $room_info->room_avatar_url;
+      $room->unread_count = new \Exception('This endpoint does not return unread count badge.', 1);
+      $room->last_comment_id = new \Exception('This endpoint does not return last comment id.', 1);
+      $room->last_comment_message = new \Exception('This endpoint does not return last comment message.', 1);
+      $room->last_comment_timestamp = new \Exception('This endpoint does not return last comment timestamp.', 1);
+      $room->participants = []; // default value is empty array
+      $room->comments = new \Exception('This endpoint does not return comments.', 1); // Empty response for this
+      
+      $participants = [];
+      foreach ($response_json->results->participants as $participant_email) {
+        $user = new \Qiscus\Model\User();
+        $user->id = new \Exception('This endpoint does not return user id.', 1);
+        $user->token = new \Exception('Token is confidential property of user, and it cannot be loaded using this endpoint', 1);
+        $user->email = $participant_email;
+        $user->password = new \Exception('Password is confidential property of user and cannot be loaded using this endpoint.', 1);
+        $user->display_name = new \Exception('This endpoint does not return display name.', 1);
+        $user->avatar_url = new \Exception('This endpoint does not return user avatar url.', 1);
+        $user->last_comment_read_id = new \Exception('This endpoint does not return last comment read id.', 1);
+        $user->last_comment_received_id = new \Exception('This endpoint does not return last comment received id.', 1);
+
+        $participants[] = $user;
+      }
+
+      $room->participants = $participants;
+
+      return $room;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
+      throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -445,7 +538,52 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-      return $response_json;
+
+      $room_info = $response_json->results;
+
+      $room = new \Qiscus\Model\Room();
+      $room->id = (string) $room_info->room_id;
+      $room->channel_id = new \Exception('This endpoint does not return channel id.', 1);
+      $room->type = (string) $room_info->room_type;
+      $room->name = (string) $room_info->room_name;
+      $room->creator_email = (string) $room_info->creator;
+      $room->avatar_url = (string) $room_info->room_avatar_url;
+      $room->unread_count = new \Exception('This endpoint does not return unread count badge.', 1);
+      $room->last_comment_id = new \Exception('This endpoint does not return last comment id.', 1);
+      $room->last_comment_message = new \Exception('This endpoint does not return last comment message.', 1);
+      $room->last_comment_timestamp = new \Exception('This endpoint does not return last comment timestamp.', 1);
+      $room->participants = []; // default value is empty array
+      $room->comments = new \Exception('This endpoint does not return comments.', 1); // Empty response for this
+      
+      $participants = [];
+      foreach ($response_json->results->participants as $participant) {
+        $user = new \Qiscus\Model\User();
+        $user->id = (string) $participant->id;
+        $user->token = new \Exception('Token is confidential property of user, and it cannot be loaded using this endpoint', 1);
+        $user->email = (string) $participant->email;
+        $user->password = new \Exception('Password is confidential property of user and cannot be loaded using this endpoint.', 1);
+        $user->display_name = (string) $participant->username;
+        $user->avatar_url = (string) $participant->avatar_url;
+        $user->last_comment_read_id = (string) $participant->last_comment_read_id;
+        $user->last_comment_received_id = (string) $participant->last_comment_received_id;
+
+        $participants[] = $user;
+      }
+
+      $room->participants = $participants;
+      return $room;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
+      throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -508,7 +646,50 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-      return $response_json;
+
+      $c = $response_json->results->comment;
+
+      $comment = new \Qiscus\Model\Comment();
+      $comment->id = (string) $c->id;
+      $comment->type = (string) $c->type;
+      $comment->message = (string) $c->message;
+      $comment->payload = $c->payload; // already an object
+      // current room is a comment's room, so return an error instead clone it to save memory
+      $comment->room = new \Exception('Use previous room object to get room info.', 1);
+      $comment->unique_temp_id = $c->unique_temp_id;
+      $comment->timestamp = new \DateTime((string) $c->timestamp);
+      $comment->unix_timestamp = $c->unix_timestamp;
+      $comment->comment_before_id = (string) $c->comment_before_id;
+      $comment->disable_link_preview = $c->disable_link_preview;
+      $comment->unique_temp_id = (string) $c->unique_temp_id;
+
+      // set user creator object
+      $result = $response_json->results;
+      $creator = new \Qiscus\Model\User();
+      $creator->id = (string) $result->user_id;
+      $creator->token = new \Exception('Token is confidential property of user, and it cannot be loaded using this endpoint', 1);
+      $creator->email = $result->email;
+      $creator->password = new \Exception('Password is confidential property of user and cannot be loaded using this endpoint.', 1);
+      $creator->display_name = $result->username;
+      $creator->avatar_url = $result->user_avatar_url;
+      $creator->last_comment_read_id = new \Exception('Cannot get by this endpoint.', 1);
+      $creator->last_comment_received_id = new \Exception('Cannot get by this endpoint.', 1);
+
+      $comment->creator = $creator;
+
+      return $comment;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
+      throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -543,7 +724,52 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-      return $response_json;
+
+      $comments = [];
+      foreach ($response_json->results->comments as $c) {
+        $comment = new \Qiscus\Model\Comment();
+        $comment->id = (string) $c->id;
+        $comment->type = (string) $c->type;
+        $comment->message = (string) $c->message;
+        $comment->payload = $c->payload; // already an object
+        // current room is a comment's room, so return an error instead clone it to save memory
+        $comment->room = new \Exception('Use previous room object to get room info.', 1);
+        $comment->unique_temp_id = $c->unique_temp_id;
+        $comment->timestamp = new \DateTime((string) $c->timestamp);
+        $comment->unix_timestamp = $c->unix_timestamp;
+        $comment->comment_before_id = (string) $c->comment_before_id;
+        $comment->disable_link_preview = $c->disable_link_preview;
+        $comment->unique_temp_id = (string) $c->unique_temp_id;
+
+        // set user creator object
+        $creator = new \Qiscus\Model\User();
+        $creator->id = (string) $c->user_id;
+        $creator->token = new \Exception('Token is confidential property of user, and it cannot be loaded using this endpoint', 1);
+        $creator->email = $c->email;
+        $creator->password = new \Exception('Password is confidential property of user and cannot be loaded using this endpoint.', 1);
+        $creator->display_name = $c->username;
+        $creator->avatar_url = $c->user_avatar_url;
+        $creator->last_comment_read_id = new \Exception('Cannot get by this endpoint.', 1);
+        $creator->last_comment_received_id = new \Exception('Cannot get by this endpoint.', 1);
+        
+        $comment->creator = $creator;
+
+        $comments[] = $comment;
+      }
+
+      return $comments;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
+      throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
