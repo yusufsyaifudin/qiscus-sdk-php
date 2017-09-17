@@ -6,6 +6,6 @@ You can download a copy or clone from this repository if you want. But, there ar
 
 ```
 require: {
-	"qiscus/qiscus-sdk-php  ": "dev-master"
+	"qiscus/qiscus-sdk-php": "dev-master"
 }
 ```
