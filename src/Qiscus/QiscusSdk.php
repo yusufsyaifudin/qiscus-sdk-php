@@ -165,7 +165,6 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-<<<<<<< HEAD
 
       $room_info = $response_json->results;
 
@@ -211,14 +210,6 @@ class QiscusSdk
       }
 
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
-=======
-      // echo $response_json->results->room_id;
-      return $response_json;
-    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
-      $response_body = $exception->getResponse()->getBody(true);
-      $response_json = json_decode((string) $response_body);
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -255,19 +246,6 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-<<<<<<< HEAD
-=======
-      return $response_json;
-    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
-      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
-      // for 500-level errors or 400-level errors
-      $response_body = $exception->getResponse()->getBody(true);
-      $response_json = json_decode((string) $response_body);
-      return $response_json;
-    } catch (\Exception $e) {
-      $response = $e->getResponse();
-      $responseBodyAsString = $response->getBody()->getContents();
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
 
       $room_info = $response_json->results->room;
 
@@ -396,7 +374,7 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-<<<<<<< HEAD
+
       $rooms = [];
 
       foreach ($response_json->results->rooms_info as $room_info) {
@@ -418,15 +396,11 @@ class QiscusSdk
       }
 
       return $rooms;
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
       // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
       // for 500-level errors or 400-level errors
       $response_body = $exception->getResponse()->getBody(true);
       $response_json = json_decode((string) $response_body);
-<<<<<<< HEAD
 
       $errors = '';
       if (property_exists($response_json->error, 'detailed_messages')) {
@@ -434,9 +408,6 @@ class QiscusSdk
       }
 
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -479,7 +450,6 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-<<<<<<< HEAD
 
       $room_info = $response_json->results;
 
@@ -515,15 +485,11 @@ class QiscusSdk
       $room->participants = $participants;
 
       return $room;
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
       // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
       // for 500-level errors or 400-level errors
       $response_body = $exception->getResponse()->getBody(true);
       $response_json = json_decode((string) $response_body);
-<<<<<<< HEAD
 
       $errors = '';
       if (property_exists($response_json->error, 'detailed_messages')) {
@@ -531,9 +497,7 @@ class QiscusSdk
       }
 
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
+
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -576,7 +540,6 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-<<<<<<< HEAD
 
       $room_info = $response_json->results;
 
@@ -611,15 +574,11 @@ class QiscusSdk
 
       $room->participants = $participants;
       return $room;
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
       // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
       // for 500-level errors or 400-level errors
       $response_body = $exception->getResponse()->getBody(true);
       $response_json = json_decode((string) $response_body);
-<<<<<<< HEAD
 
       $errors = '';
       if (property_exists($response_json->error, 'detailed_messages')) {
@@ -627,9 +586,6 @@ class QiscusSdk
       }
 
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -692,7 +648,6 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-<<<<<<< HEAD
 
       $c = $response_json->results->comment;
 
@@ -725,15 +680,11 @@ class QiscusSdk
       $comment->creator = $creator;
 
       return $comment;
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
       // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
       // for 500-level errors or 400-level errors
       $response_body = $exception->getResponse()->getBody(true);
       $response_json = json_decode((string) $response_body);
-<<<<<<< HEAD
 
       $errors = '';
       if (property_exists($response_json->error, 'detailed_messages')) {
@@ -741,9 +692,6 @@ class QiscusSdk
       }
 
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
@@ -778,7 +726,6 @@ class QiscusSdk
         ]);
 
       $response_json = json_decode((string) $response->getBody());
-<<<<<<< HEAD
 
       $comments = [];
       foreach ($response_json->results->comments as $c) {
@@ -813,15 +760,11 @@ class QiscusSdk
       }
 
       return $comments;
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
       // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
       // for 500-level errors or 400-level errors
       $response_body = $exception->getResponse()->getBody(true);
       $response_json = json_decode((string) $response_body);
-<<<<<<< HEAD
 
       $errors = '';
       if (property_exists($response_json->error, 'detailed_messages')) {
@@ -829,9 +772,6 @@ class QiscusSdk
       }
 
       throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
-=======
-      return $response_json;
->>>>>>> 091160f4b17a7637b6f2312a0232ce361a233329
     } catch (\Exception $e) {
       throw new \Exception($e->getMessage());
     }
