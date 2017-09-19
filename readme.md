@@ -9,3 +9,9 @@ require: {
 	"qiscus/qiscus-sdk-php": "dev-master"
 }
 ```
+## RUN TEST
+
+To run overall test just run phpunit binary after composer install :
+```
+vendor/bin/phpunit
+```
