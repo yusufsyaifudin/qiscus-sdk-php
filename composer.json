@@ -1,5 +1,5 @@
 {
-  "name": "yusufs/qiscus-sdk-php",
+  "name": "qiscus/qiscus-sdk-php",
   "description": "Qiscus SDK Rest API implementation in PHP.",
   "keywords": ["qiscus", "qiscus sdk php"],
   "type": "library",
