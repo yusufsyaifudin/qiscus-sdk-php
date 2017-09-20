@@ -67,6 +67,9 @@
 //   $get_rooms_info = $qiscus_sdk->getRoomsInfo($creator, [$create_room->id, $get_or_create_room_with_target->id]); 
 //   echo "================ GET ROOM INFO =====================";
 //   var_dump($get_rooms_info);
+//   $get_user_rooms = $qiscus_sdk->getUserRooms($creator); 
+//   echo "================ GET ROOM INFO =====================";
+//   var_dump($get_user_rooms);
 // } catch (\Exception $e) {
 //   var_dump($e->getMessage());
 // }

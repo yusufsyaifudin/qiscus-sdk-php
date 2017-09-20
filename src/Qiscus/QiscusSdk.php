@@ -668,12 +668,12 @@ class QiscusSdk
       // set user creator object
       $result = $response_json->results;
       $creator = new \Qiscus\Model\User();
-      $creator->id = (string) $result->user_id;
+      $creator->id = (string) $result->comment->user_id;
       $creator->token = new \Exception('Token is confidential property of user, and it cannot be loaded using this endpoint', 1);
-      $creator->email = $result->email;
+      $creator->email = $result->comment->email;
       $creator->password = new \Exception('Password is confidential property of user and cannot be loaded using this endpoint.', 1);
-      $creator->display_name = $result->username;
-      $creator->avatar_url = $result->user_avatar_url;
+      $creator->display_name = $result->comment->username;
+      $creator->avatar_url = $result->comment->user_avatar_url;
       $creator->last_comment_read_id = new \Exception('Cannot get by this endpoint.', 1);
       $creator->last_comment_received_id = new \Exception('Cannot get by this endpoint.', 1);
 
@@ -776,4 +776,69 @@ class QiscusSdk
       throw new \Exception($e->getMessage());
     }
   }
+
+  public function getUserRooms(string $user_email, $room_type = '', $page='', $limit='', bool $show_participants = false)
+  {
+    try {
+
+      $query_params = [];
+      $query_params['user_email'] = $user_email;
+      $query_params['show_participants'] = $show_participants;
+      $query_params['room_type'] = $room_type;
+      $query_params['page'] = $page;
+      $query_params['limit'] = $limit;
+
+       $response = $this->client->request('GET', '/api/v2/rest/get_user_rooms',
+        [
+          'query' => $query_params,
+          'headers' => [
+              'Accept' => 'application/json',
+              'QISCUS_SDK_APP_ID' => $this->qiscus_sdk_app_id,
+              'QISCUS_SDK_SECRET' => $this->qiscus_sdk_secret
+          ]
+        ]);
+
+
+  
+      $response_json = json_decode((string) $response->getBody());
+      var_dump($response_json);
+      exit;
+      $rooms = [];
+
+      foreach ($response_json->results->rooms_info as $room_info) {
+        $room = new \Qiscus\Model\Room();
+        $room->id = (string) $room_info->room_id;
+        $room->channel_id = new \Exception('This endpoint does not return channel id.', 1);
+        $room->type = (string) $room_info->room_type;
+        $room->name = (string) $room_info->room_name;
+        $room->creator_email = new \Exception('This endpoint does not return creator email.', 1); // Empty response for this
+        $room->avatar_url = (string) $room_info->room_avatar_url;
+        $room->unread_count = $room_info->unread_count;
+        $room->last_comment_id = (string) $room_info->last_comment_id;
+        $room->last_comment_message = (string) $room_info->last_comment_message;
+        $room->last_comment_timestamp = new \Exception('This endpoint does not return last comment timestamp.', 1);
+        $room->participants = new \Exception('This endpoint does not return participants.', 1); // Empty response for this
+        $room->comments = new \Exception('This endpoint does not return comments.', 1); // Empty response for this
+
+        $rooms[] = $room;
+      }
+
+      return $rooms;
+    } catch (\GuzzleHttp\Exception\BadResponseException $exception) {
+      // docs.guzzlephp.org/en/latest/quickstart.html#exceptions
+      // for 500-level errors or 400-level errors
+      $response_body = $exception->getResponse()->getBody(true);
+      $response_json = json_decode((string) $response_body);
+
+      $errors = '';
+      if (property_exists($response_json->error, 'detailed_messages')) {
+        $errors = join(', ', $response_json->error->detailed_messages);
+      }
+
+      throw new \Exception($response_json->error->message . ': ' . $errors, $exception->getResponse()->getStatusCode());
+    } catch (\Exception $e) {
+      throw new \Exception($e->getMessage());
+    }
+  }
+
 }
